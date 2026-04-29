@@ -44,5 +44,27 @@ attempts indicating a brute force attack against user accounts.
 - Threshold filtering with `where`
 - Result sorting with `sort by`
 
----
-*More queries coming this week as part of SC-200 exam prep*
+## Query 2: Suspicious Application Activity
+**SC-200 Concept:** Execution Detection - identifying suspcious repeated application errors indicative of beaconing or misconfigured outbound connections
+**MITRE ATT&CK:** Execution (TA0002) / Command and Control (TA0011)
+**Production table:** SecurityEvent (EventID 4688 - Process Creation)
+**Demo table:** AppTraces
+
+### KQL Code
+AppTraces
+| where TimeGenerated > ago7d)
+| where SeverityLevel == 3
+| summarize SuspiciousCount = count() by AppRoleName, Message
+| where SuspiciousCount > 50
+| sort by SuspiciousCount desc
+
+## What it detects 
+Unusual spike in error-level application traces from specific application roles.
+In production, this same logic detects suspicious process execution activity such as PowerShell with obfuscation flags or repeated outbound connection attempts indicating beaconing or command and control behavior.
+
+### SC-200 KQL Concepts Demonstrated
+- Severity level filtering with 'where SeverityLevel'
+- Aggregate with 'summarize' and 'count()'
+- Threshold filtering with 'where'
+- Result sort with 'sort by'
+
