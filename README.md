@@ -68,3 +68,58 @@ In production, this same logic detects suspicious process execution activity suc
 - Threshold filtering with 'where'
 - Result sort with 'sort by'
 
+## Query 3: Lateral Movement Detection
+
+**SC-200 Concept:** Lateral movement detection — identifying applications or users accessing an unusually high number of unique targets  
+**MITRE ATT&CK:** Lateral Movement (TA0008)  
+**Production table:** SecurityEvent / NetworkCommunicationEvents  
+**Demo table:** AppDependencies
+
+### KQL Code
+```kql
+AppDependencies
+| summarize TargetCount = dcount(Target) by AppRoleName
+| where TargetCount > 5
+| sort by TargetCount desc
+```
+
+### What it detects
+Application accessing an unusually high number of unique external
+targets. In production, this same logic detects lateral movement
+where a compromised account or device accesses multiple servers
+across the environment in a short period of time.
+
+### SC-200 KQL Concepts Demonstrated
+- `dcount()` — counting distinct/unique values (not total occurrences)
+- `summarize` with grouping by entity
+- Threshold filtering with `where`
+- `sort by desc` — prioritizing highest risk first
+
+## Query 4: Performance Anomaly Detection
+
+**SC-200 Concept:** Privilege escalation and malware detection 
+through abnormal resource consumption patterns  
+**MITRE ATT&CK:** Privilege Escalation (TA0004)  
+**Production table:** Perf / SecurityEvent  
+**Demo table:** AppPerformanceCounters
+
+### KQL Code
+```kql
+AppPerformanceCounters
+| where TimeGenerated > ago(7d)
+| summarize AvgValue = avg(Value) by Name, AppRoleName
+| where AvgValue > 1000000
+| sort by AvgValue desc
+```
+
+### What it detects
+Applications with sustained abnormally high resource consumption
+(memory, CPU, network). In production, this same logic detects
+ransomware, cryptomining malware, or privilege escalation tools
+consuming unusually high system resources over time.
+
+### SC-200 KQL Concepts Demonstrated
+- `avg()` — calculating average values instead of counting
+- `summarize` with grouping by multiple columns
+- High threshold filtering with `where`
+- `sort by desc` — surfacing highest risk first
